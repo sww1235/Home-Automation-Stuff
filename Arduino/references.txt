@@ -1,0 +1,11 @@
+http://www.elcojacobs.com/using-shiftpwm-to-control-rgb-leds-with-arduino/
+
+http://www.elcojacobs.com/shiftpwm/
+
+http://tronixstuff.com/2011/08/26/tutorial-maximising-your-arduinos-io-ports/
+
+http://www.gammon.com.au/forum/?id=10945
+
+http://ww1.microchip.com/downloads/en/DeviceDoc/21952b.pdf - input mux datasheet
+
+http://www.desert-home.com - inspiration and stolen arduino code
