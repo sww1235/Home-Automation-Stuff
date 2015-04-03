@@ -7,7 +7,7 @@
 #include <Wire.h>
 #include <CShiftPWM.h>
 #include <pins_arduino_compile_time.h>
-//#include <ShiftPWM.h>
+#include <ShiftPWM.h>
 #include <SPI.h>
 #include <avr/pgmspace.h>
 
@@ -36,8 +36,10 @@ This code is for the RGB LED button panel clients.
 Remember that there are 8 buttons on the device plus an additional 2 external buttons.
 */
 //Definitions
-
-//make sure to move all constants to progmem to save space, especially the query strings.
+const int ShiftPWM_latchPin = 8;
+const int resetEthernetPin = 4;
+const int rxSense 3;
+//make sure to move all string constants to progmem to save space, especially the query strings.
 const byte mac[] = { , , , , , }; //need to fill in with generated mac address (6 byte array)
 const IPAddress ip( , , , ); //static ip address of local device (client)
 //Duplicate Server IP address if it is accessed by more than one button.
@@ -49,8 +51,9 @@ const IPAddress server5( , , , ); //static ip address of device to be controlled
 const IPAddress server6( , , , ); //static ip address of device to be controlled by button 6
 const IPAddress server7( , , , ); //static ip address of device to be controlled by button 7
 const IPAddress server8( , , , ); //static ip address of device to be controlled by button 8
-const IPAddress server9( , , , ); //static ip address of device to be controlled by button 9  (external)
-const IPAddress server0( , , , ); //static ip address of device to be controlled by button 10 (external)
+const IPAddress server9( , , , ); //static ip address of device to be controlled by button 9  (external switch)
+const IPAddress server0( , , , ); //static ip address of device to be controlled by button 10 (external switch)
+const IPAddress ccServer( , , , );//static ip address of command and control server
 //Will always have 10 queries, even if they are duplicates. (example string = "GET /?message HTTP/1.0")
 const PROGMEM char query1[] = "";
 const PROGMEM char query2[] = "";
@@ -62,28 +65,18 @@ const PROGMEM char query7[] = "";
 const PROGMEM char query8[] = "";
 const PROGMEM char query9[] = "";
 const PROGMEM char query0[] = "";
-EthernetClient client;
+const PROGMEM char ccQuerry[] = ""; //querry to get data back from command and control server
+EthernetClient client; //main web client
+
 //EthernetServer server(port); //if we want a server
 
 byte GPIOA, GPIOB;
 boolean button1, button2, button3, button4, button5, button6, button7, button8, button9, button0;
+char incString[100]; // length of response from server (only requesting data from command and control server will use this, shrink if needed.
+void(* resetFunc) (void) = 0; //declare reset function @ address 0
 
-
-
-
-
-void setup() {
-  //reset ethernet shield by pulling pin low and wait for initilization
-  Ethernet.begin(mac, ip); //initilize ethernet shield
-  delay(1000);
-  Wire.begin(); //wake up I2C bus
-
-
-
-
-}
 //need const for the char array because it is a pass by reference so it could be potentially modified by the function if const is not specififed.
-void connectToServer(IPAddress address, const char request[]) {  
+void connectToServer(IPAddress address, const char request[]) {
   if (client.connect(address, 80))
   {
     client.println(PSTR(request)); //the client does not actually need to get anything back from the server.
@@ -96,10 +89,84 @@ void connectToServer(IPAddress address, const char request[]) {
 
 
 }
+void connectToServerAndRetrieveData(IPAddress address, const char request[]) {
+  incString=""; //clear incString
+  if (client.connect(address, 80))
+  {
+    client.println(PSTR(request)); 
+    client.println(PSTR("Connection: close"));
+    client.println();
+    delay(500);
+    if (client.available)
+    {
+      int ii = 0;
+      while ((c = client.read()) != "\n")
+      {
+        incString[ii++] = c;
+
+      }
+
+    }
+
+
+    client.flush();
+    client.stop();
+  }
+
+
+}
+
+void ethernetReset() {
+  bool rxState;
+  int cnt = 10, retryCount = 10, result;
+
+  pinMode(resetEthernetPin, INPUT); //reset pin for ethernet shield
+  pinMode(rxSense, INPUT); //sense pin for rx led on ethernet shield
+
+
+  while (retryCount-- > 0) {
+    digitalWrite(resetEthernetPin, HIGH); //enable internal pullup resistor on resetEthernetPin
+    pinMode(resetEthernetPin, OUTPUT); //change pin mode to output
+    digitalWrite(resetEthernetPin, LOW);//pull ehternet board reset pin low to reset
+    delay(1000);
+    digitalWrite(resetEthernetPin, HIGH);
+    delay(2000);
+    // after reset, check rx pin for constant on
+
+    cnt = 10;
+    result = 0;
+    while (cnt-- != 0) { // simply count the number of times the light is on in the loop
+      result += digitalRead(rxSense);
+      delay(50);
+    }
+    if (result >= 6)     // experimentation gave me this number YMMV: confirm this number
+      return;
+    delay(50);
+
+  }
+  // OK, I tried 10 times to make it work, just start over.
+  resetFunc();
+
+
+}
+
+void setup() {
+  ethernetReset();
+  Ethernet.begin(mac, ip); //initilize ethernet shield
+  delay(1000);
+  Wire.begin(); //wake up I2C bus
+
+
+
+
+}
+
 
 void loop()
 {
   // put your main code here, to run repeatedly:
+  connectToServerAndRetrieveData(ccServer, PSTR(ccQuery)); //this sets incString[] to a string value recieved from the command and control server that encodes the status of the leds
+  //implement stuff to look at value of incString and change led values based on it.
   Wire.beginTransmission(0x20); //begin transmission on wire bus to address of mux, which is 0x20
   Wire.write(0x12); //set MCP23017 memory pointer to GPIOA address
   Wire.endTransmission();
@@ -122,38 +189,38 @@ void loop()
       button6 = (boolean) GPIOA & B00100000;
       button7 = (boolean) GPIOA & B01000000;
       button8 = (boolean) GPIOA & B10000000;
-      
+
       if (button1 == true)
       {
-      connectToServer(server1, query1);
+        connectToServer(server1, query1);
       }
       if (button2 == true)
       {
-      connectToServer(server2, query2);
+        connectToServer(server2, query2);
       }
       if (button3 == true)
       {
-      connectToServer(server3, query3);
+        connectToServer(server3, query3);
       }
       if (button4 == true)
       {
-      connectToServer(server4, query4);
+        connectToServer(server4, query4);
       }
       if (button5 == true)
       {
-      connectToServer(server5, query5);
+        connectToServer(server5, query5);
       }
       if (button6 == true)
       {
-      connectToServer(server6, query6);
+        connectToServer(server6, query6);
       }
       if (button7 == true)
       {
-      connectToServer(server7, query7);
+        connectToServer(server7, query7);
       }
       if (button8 == true)
       {
-      connectToServer(server8, query8);
+        connectToServer(server8, query8);
       }
 
     }
@@ -163,11 +230,11 @@ void loop()
       button0 = (boolean) GPIOB & B00000010;
       if (button9 == true)
       {
-      connectToServer(server9, query9);
+        connectToServer(server9, query9);
       }
       if (button0 == true)
       {
-      connectToServer(server0, query0);
+        connectToServer(server0, query0);
       }
 
     }

@@ -9,3 +9,11 @@ http://www.gammon.com.au/forum/?id=10945
 http://ww1.microchip.com/downloads/en/DeviceDoc/21952b.pdf - input mux datasheet
 
 http://www.desert-home.com - inspiration and stolen arduino code
+
+http://stackoverflow.com/questions/19920796/how-to-have-2-arduinos-communicate-a-variable-over-ethernet -help with client and server code- sending messages back and forth too and from arduninos.
+
+http://www.instructables.com/id/Easy-Basic-Arduino-Ethernet-Controller/step4/null/ - arduino server tutorial
+
+http://www.gammon.com.au/progmem - help with progmem
+
+http://arduino.cc/forum/index.php/topic,54378.0.html - modifications to ethernet lib to retrieve client ip address that is connecting to server.
