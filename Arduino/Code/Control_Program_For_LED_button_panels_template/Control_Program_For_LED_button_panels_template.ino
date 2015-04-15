@@ -5,6 +5,9 @@
 //#include <EthernetServer.h>
 //#include <EthernetUdp.h>
 #include <Wire.h>
+const int ShiftPWM_latchPin = 8;
+const bool ShiftPWM_invertOutputs = false;
+const bool ShiftPWM_balanceLoad = false;
 #include <CShiftPWM.h>
 #include <pins_arduino_compile_time.h>
 #include <ShiftPWM.h>
@@ -35,10 +38,23 @@ This code is for the RGB LED button panel clients.
 
 Remember that there are 8 buttons on the device plus an additional 2 external buttons.
 */
-//Definitions
-const int ShiftPWM_latchPin = 8;
 const int resetEthernetPin = 4;
-const int rxSense 3;
+const int rxSense = 3;
+//Function Prototypes
+void connectToServer(IPAddress address, const char request[]);
+void connectToServerAndRetrieveData(IPAddress address, const char request[]);
+void ethernetReset();
+//Definitions
+unsigned char maxBrightness = 255;
+unsigned char pwmFrequency = 75;
+unsigned int numRegisters = 6;
+unsigned int numOutputs = numRegisters*8;
+unsigned int numRGBLeds = numRegisters*8/3;
+unsigned int fadingMode = 0; //start with all LED's off.
+
+unsigned long startTime = 0; // start time for the chosen fading mode
+
+
 //make sure to move all string constants to progmem to save space, especially the query strings.
 const byte mac[] = { , , , , , }; //need to fill in with generated mac address (6 byte array)
 const IPAddress ip( , , , ); //static ip address of local device (client)
@@ -65,7 +81,7 @@ const PROGMEM char query7[] = "";
 const PROGMEM char query8[] = "";
 const PROGMEM char query9[] = "";
 const PROGMEM char query0[] = "";
-const PROGMEM char ccQuerry[] = ""; //querry to get data back from command and control server
+const PROGMEM char ccQuery[] = ""; //querry to get data back from command and control server
 EthernetClient client; //main web client
 
 //EthernetServer server(port); //if we want a server
@@ -90,19 +106,30 @@ void connectToServer(IPAddress address, const char request[]) {
 
 }
 void connectToServerAndRetrieveData(IPAddress address, const char request[]) {
-  incString=""; //clear incString
+  //clear incString
+  for (int i = 0; x < 100; x++)
+  {
+    incString[i] = "";
+
+  }
   if (client.connect(address, 80))
   {
-    client.println(PSTR(request)); 
+    client.println(PSTR(request));
     client.println(PSTR("Connection: close"));
     client.println();
     delay(500);
-    if (client.available)
+    if (client.available() > 0)
     {
-      int ii = 0;
-      while ((c = client.read()) != "\n")
+      int ii = client.available(); //returns number of bytes available for reading
+      char c;
+      for (int i = ii; i > 0; i-- )
       {
-        incString[ii++] = c;
+        c = client.read();
+        if (c == '\n')
+        {
+          break;
+        }
+        incString[i] = c;
 
       }
 
@@ -155,6 +182,12 @@ void setup() {
   Ethernet.begin(mac, ip); //initilize ethernet shield
   delay(1000);
   Wire.begin(); //wake up I2C bus
+    // Sets the number of 8-bit registers that are used.
+  ShiftPWM.SetAmountOfRegisters(numRegisters);
+  // SetPinGrouping allows flexibility in LED setup. 
+  // If your LED's are connected like this: RRRRGGGGBBBBRRRRGGGGBBBB, use SetPinGrouping(4).
+  ShiftPWM.SetPinGrouping(8); //This is the default, but I added here to demonstrate how to use the funtion
+  ShiftPWM.Start(pwmFrequency,maxBrightness);
 
 
 
