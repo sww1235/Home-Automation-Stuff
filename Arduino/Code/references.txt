@@ -16,4 +16,8 @@ http://www.instructables.com/id/Easy-Basic-Arduino-Ethernet-Controller/step4/nul
 
 http://www.gammon.com.au/progmem - help with progmem
 
-http://arduino.cc/forum/index.php/topic,54378.0.html - modifications to ethernet lib to retrieve client ip address that is connecting to server.
+http://arduino.cc/forum/index.php/topic,54378.0.html - modifications to
+ethernet lib to retrieve client ip address that is connecting to server.
+
+http://www.freetronics.com.au/pages/how-to-upload-a-sketch-to-your-arduino-via-a-network#.VypyLGOTWRs
+tftp bootloader for arduinos

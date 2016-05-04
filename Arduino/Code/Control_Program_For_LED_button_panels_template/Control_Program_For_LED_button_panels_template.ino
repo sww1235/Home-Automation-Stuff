@@ -14,29 +14,56 @@ const bool ShiftPWM_balanceLoad = false;
 #include <SPI.h>
 #include <avr/pgmspace.h>
 
-//code based on arduino web client tutorial
-//using static ip address
 
 //Designed for use with Arduino Nano
 
 /*
-each button press should send an http get request to the
-appropriate relay or device. Receiving Device should report to command and control server using similar mechanism.
+Each button press should establish a EthernetClient connection to an
+EthernetServer, which is running on the appropriate relay or device.
+It should also establish an EthernetClient connection to a similar server
+listening on a command and control server which will update the database with
+the current state of the client device.
 
 
-Basically the idea is to have devices that control things (the servers that are connected to
-the physical devices) and clients which are the push button panels and other human interfaces
 
-Each server has an IP address and can have multiple controlled devices. Query strings will be customized
-for specific controlled devices.
+Basically the idea is to have devices that control things
+(the ardunios (servers) that are connected to the physical devices) and
+clients (ardunios) which are the push button panels and other human interfaces.
 
-This code is a template that will be automagically filled in for a specific device by the
-command and control server.
+
+Each arduino (either client or server) is running a tftp bootloader(freetronics).
+See references.txt for linky. This allows for the storage of IP and MAC in
+EEPROM. This needs static IPs.
+
+ALternatively, can use arduino-netboot bootloader which allows for DHCP config
+but requires DNS and DHCP setup.
+
+since KISS should always be in effect, probably use static IPs and freetronics
+bootloader. Since on own subnet anyways, static addressing is not an issue.
+
+MAC addresses are generated randomly using locally administered addressing,
+and compared to previously assigned addresses in database before being burned
+into the EEPROM of the device.
+
+Locally administered addresses are unicast and of the form:
+x2-xx-xx-xx-xx-xx
+x6-xx-xx-xx-xx-xx
+xA-xx-xx-xx-xx-xx
+xE-xx-xx-xx-xx-xx
+
+Where x is any hex value.
+
+Each server has an IP address and can have multiple controlled devices. Query
+strings will be customized for specific controlled devices.
+
+This code is a template that will be automagically filled in for a
+specific device by the command and control server.
 
 
 This code is for the RGB LED button panel clients.
 
-Remember that there are 8 buttons on the device plus an additional 2 external buttons.
+Remember that there are 8 buttons on the device plus an additional 2
+external buttons.
 */
 const int resetEthernetPin = 4;
 const int rxSense = 3;
@@ -44,18 +71,18 @@ const int rxSense = 3;
 void connectToServer(IPAddress address, const char request[]);
 void connectToServerAndRetrieveData(IPAddress address, const char request[]);
 void ethernetReset();
-//Definitions
+//Definitions for LED control
 unsigned char maxBrightness = 255;
 unsigned char pwmFrequency = 75;
 unsigned int numRegisters = 6;
 unsigned int numOutputs = numRegisters*8;
 unsigned int numRGBLeds = numRegisters*8/3;
 unsigned int fadingMode = 0; //start with all LED's off.
-
 unsigned long startTime = 0; // start time for the chosen fading mode
 
 
 //make sure to move all string constants to progmem to save space, especially the query strings.
+const int port = 80; //change to nonstandard port once decided upon.
 const byte mac[] = { , , , , , }; //need to fill in with generated mac address (6 byte array)
 const IPAddress ip( , , , ); //static ip address of local device (client)
 //Duplicate Server IP address if it is accessed by more than one button.
@@ -93,11 +120,9 @@ void(* resetFunc) (void) = 0; //declare reset function @ address 0
 
 //need const for the char array because it is a pass by reference so it could be potentially modified by the function if const is not specififed.
 void connectToServer(IPAddress address, const char request[]) {
-  if (client.connect(address, 80))
+  if (client.connect(address, port))
   {
     client.println(PSTR(request)); //the client does not actually need to get anything back from the server.
-    client.println(PSTR("Connection: close"));
-    client.println();
     delay(500);
     client.flush();
     client.stop();
@@ -112,7 +137,7 @@ void connectToServerAndRetrieveData(IPAddress address, const char request[]) {
     incString[i] = "";
 
   }
-  if (client.connect(address, 80))
+  if (client.connect(address, port))
   {
     client.println(PSTR(request));
     client.println(PSTR("Connection: close"));
@@ -184,9 +209,9 @@ void setup() {
   Wire.begin(); //wake up I2C bus
     // Sets the number of 8-bit registers that are used.
   ShiftPWM.SetAmountOfRegisters(numRegisters);
-  // SetPinGrouping allows flexibility in LED setup. 
+  // SetPinGrouping allows flexibility in LED setup.
   // If your LED's are connected like this: RRRRGGGGBBBBRRRRGGGGBBBB, use SetPinGrouping(4).
-  ShiftPWM.SetPinGrouping(8); //This is the default, but I added here to demonstrate how to use the funtion
+  ShiftPWM.SetPinGrouping(8); //This is the default, but I added here to demonstrate how to use the function
   ShiftPWM.Start(pwmFrequency,maxBrightness);
 
 
@@ -214,14 +239,14 @@ void loop()
   {
     if (GPIOA > 0)
     {
-      button1 = (boolean) GPIOA & B00000001; //set all other bits to zero except first which gives us true/false
-      button2 = (boolean) GPIOA & B00000010;
-      button3 = (boolean) GPIOA & B00000100;
-      button4 = (boolean) GPIOA & B00001000;
-      button5 = (boolean) GPIOA & B00010000;
-      button6 = (boolean) GPIOA & B00100000;
-      button7 = (boolean) GPIOA & B01000000;
-      button8 = (boolean) GPIOA & B10000000;
+      button1 = GPIOA & B00000001; //set all other bits to zero except first which gives us true/false
+      button2 = GPIOA & B00000010;
+      button3 = GPIOA & B00000100;
+      button4 = GPIOA & B00001000;
+      button5 = GPIOA & B00010000;
+      button6 = GPIOA & B00100000;
+      button7 = GPIOA & B01000000;
+      button8 = GPIOA & B10000000;
 
       if (button1 == true)
       {
