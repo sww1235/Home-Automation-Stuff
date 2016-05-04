@@ -239,7 +239,7 @@ void loop()
   {
     if (GPIOA > 0)
     {
-      button1 = GPIOA & B00000001; //set all other bits to zero except first which gives us true/false
+      button1 = GPIOA & B00000001; //set all other bits of result to zero except first which gives us true/false
       button2 = GPIOA & B00000010;
       button3 = GPIOA & B00000100;
       button4 = GPIOA & B00001000;
@@ -284,8 +284,8 @@ void loop()
     }
     if (GPIOB > 0)
     {
-      button9 = (boolean) GPIOB & B00000001;
-      button0 = (boolean) GPIOB & B00000010;
+      button9 = GPIOB & B00000001;
+      button0 = GPIOB & B00000010;
       if (button9 == true)
       {
         connectToServer(server9, query9);
