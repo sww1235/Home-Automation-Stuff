@@ -81,23 +81,42 @@ unsigned int fadingMode = 0; //start with all LED's off.
 unsigned long startTime = 0; // start time for the chosen fading mode
 
 
-//make sure to move all string constants to progmem to save space, especially the query strings.
-const int port = 80; //change to nonstandard port once decided upon.
-const byte mac[] = { , , , , , }; //need to fill in with generated mac address (6 byte array)
-const IPAddress ip( , , , ); //static ip address of local device (client)
+//make sure to move all string constants to progmem to save space, especially
+//the query strings.
+
+//change to nonstandard port once decided upon.
+const int port = 80;
+//need to fill in with generated mac address (6 byte array)
+const byte mac[] = { , , , , , };
+//static ip address of local device (client)
+const IPAddress ip( , , , );
+
 //Duplicate Server IP address if it is accessed by more than one button.
-const IPAddress server1( , , , ); //static ip address of device to be controlled by button 1
-const IPAddress server2( , , , ); //static ip address of device to be controlled by button 2
-const IPAddress server3( , , , ); //static ip address of device to be controlled by button 3
-const IPAddress server4( , , , ); //static ip address of device to be controlled by button 4
-const IPAddress server5( , , , ); //static ip address of device to be controlled by button 5
-const IPAddress server6( , , , ); //static ip address of device to be controlled by button 6
-const IPAddress server7( , , , ); //static ip address of device to be controlled by button 7
-const IPAddress server8( , , , ); //static ip address of device to be controlled by button 8
-const IPAddress server9( , , , ); //static ip address of device to be controlled by button 9  (external switch)
-const IPAddress server0( , , , ); //static ip address of device to be controlled by button 10 (external switch)
-const IPAddress ccServer( , , , );//static ip address of command and control server
-//Will always have 10 queries, even if they are duplicates. (example string = "GET /?message HTTP/1.0")
+
+//static ip address of device to be controlled by button 1
+const IPAddress server1( , , , );
+//static ip address of device to be controlled by button 2
+const IPAddress server2( , , , );
+//static ip address of device to be controlled by button 3
+const IPAddress server3( , , , );
+//static ip address of device to be controlled by button 4
+const IPAddress server4( , , , );
+//static ip address of device to be controlled by button 5
+const IPAddress server5( , , , );
+//static ip address of device to be controlled by button 6
+const IPAddress server6( , , , );
+//static ip address of device to be controlled by button 7
+const IPAddress server7( , , , );
+//static ip address of device to be controlled by button 8
+const IPAddress server8( , , , );
+//static ip address of device to be controlled by button 9  (external switch)
+const IPAddress server9( , , , );
+//static ip address of device to be controlled by button 10 (external switch)
+const IPAddress server0( , , , );
+//static ip address of command and control server
+const IPAddress ccServer( , , , );
+//Will always have 10 queries, even if they are duplicates.
+//(example string = "GET /?message HTTP/1.0")
 const PROGMEM char query1[] = "";
 const PROGMEM char query2[] = "";
 const PROGMEM char query3[] = "";
