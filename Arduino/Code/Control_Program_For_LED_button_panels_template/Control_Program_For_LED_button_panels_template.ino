@@ -134,13 +134,15 @@ EthernetClient client; //main ethernet client
 
 byte GPIOA, GPIOB;
 boolean button1, button2, button3, button4, button5, button6, button7, button8, button9, button0;
-char incString[100]; // length of response from server (only requesting data from command and control server will use this, shrink if needed.
+// length of response from server (only requesting data from
+//command and control server will use this, shrink if needed.
+char incString[100];
 void(* resetFunc) (void) = 0; //declare reset function @ address 0
 
-//need const for the char array because it is a pass by reference so it could be potentially modified by the function if const is not specififed.
+//need const for the char array because it is a pass by reference so it
+//could be potentially modified by the function if const is not specififed.
 int connectToServer(IPAddress address, const char request[]) {
-  if (client.connect(address, port))
-  {
+  if (client.connect(address, port)){
     client.println(PSTR(request)); //the client does not actually need to get anything back from the server.
     delay(500);
     client.flush();
@@ -148,8 +150,6 @@ int connectToServer(IPAddress address, const char request[]) {
     return 0;
   }
   else return -1;
-
-
 }
 int connectToServerAndRetrieveData(IPAddress address, const char request[]) {
   //clear incString
@@ -236,25 +236,30 @@ void setup() {
 }
 
 
-void loop()
-{
-  // put your main code here, to run repeatedly:
-  int RDsucess = connectToServerAndRetrieveData(ccServer, PSTR(ccQuery)); //this sets incString[] to a string value recieved from the command and control server that encodes the status of the leds
+void loop(){
+  //this sets incString[] to a string value recieved from the command
+  //and control server that encodes the status of the leds
+  int RDsucess = connectToServerAndRetrieveData(ccServer, PSTR(ccQuery));
   //implement stuff to look at value of incString and change led values based on it.
-  Wire.beginTransmission(0x20); //begin transmission on wire bus to address of mux, which is 0x20
+  if (RDsucess){
+    
+  }
+  //begin transmission on wire bus to address of mux, which is 0x20
+  Wire.beginTransmission(0x20);
   Wire.write(0x12); //set MCP23017 memory pointer to GPIOA address
   Wire.endTransmission();
-  Wire.requestFrom(0x20, 1); // read one byte of data from GPIOA. Status will be represented as a bianary nbr.
+  //read one byte of data from GPIOA.
+  //Status will be represented as a binary number.
+  Wire.requestFrom(0x20, 1);
   GPIOA = Wire.read();
   Wire.beginTransmission(0x20);
   Wire.write(0x13);
   Wire.endTransmission();
   Wire.requestFrom(0x20, 1);
   GPIOB = Wire.read();
-  if (GPIOA > 0 || GPIOB > 0) //if a button was pressed
-  {
-    if (GPIOA > 0)
-    {
+  if (GPIOA > 0 || GPIOB > 0){ //if a button was pressed
+
+    if (GPIOA > 0){
       button1 = GPIOA & B00000001; //set all other bits of result to zero except first which gives us true/false
       button2 = GPIOA & B00000010;
       button3 = GPIOA & B00000100;
@@ -264,50 +269,39 @@ void loop()
       button7 = GPIOA & B01000000;
       button8 = GPIOA & B10000000;
 
-      if (button1 == true)
-      {
+      if (button1 == true){
         connectToServer(server1, query1);
       }
-      if (button2 == true)
-      {
+      if (button2 == true){
         connectToServer(server2, query2);
       }
-      if (button3 == true)
-      {
+      if (button3 == true){
         connectToServer(server3, query3);
       }
-      if (button4 == true)
-      {
+      if (button4 == true){
         connectToServer(server4, query4);
       }
-      if (button5 == true)
-      {
+      if (button5 == true){
         connectToServer(server5, query5);
       }
-      if (button6 == true)
-      {
+      if (button6 == true){
         connectToServer(server6, query6);
       }
-      if (button7 == true)
-      {
+      if (button7 == true){
         connectToServer(server7, query7);
       }
-      if (button8 == true)
-      {
+      if (button8 == true){
         connectToServer(server8, query8);
       }
 
     }
-    if (GPIOB > 0)
-    {
+    if (GPIOB > 0){
       button9 = GPIOB & B00000001;
       button0 = GPIOB & B00000010;
-      if (button9 == true)
-      {
+      if (button9 == true){
         connectToServer(server9, query9);
       }
-      if (button0 == true)
-      {
+      if (button0 == true){
         connectToServer(server0, query0);
       }
 

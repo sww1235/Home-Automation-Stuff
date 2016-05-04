@@ -1,6 +1,6 @@
 #include <SPI.h>
-#include <Dhcp.h>
-#include <Dns.h>
+//#include <Dhcp.h>
+//#include <Dns.h>
 #include <Ethernet.h>
 #include <EthernetClient.h>
 #include <EthernetServer.h>
@@ -13,7 +13,7 @@
 //for client.cpp
 Client::Client(uint8_t *ip, uint16_t port) {
  _ip = ip;
- _port = port;  
+ _port = port;
  _sock = 255;
 }
 
@@ -58,6 +58,7 @@ it also reports its status to the command and control server
 
 */
 //Definitions
+int port = 80; //change to custom port //TODO: change to custom port
 byte mac[] = { , , , , , }; //need to fill in with generated mac address (6 byte array)
 IPAddress ip( , , , ); //static ip address of local device (server)
 // add list of query strings to respond to here
@@ -70,44 +71,32 @@ void setup() {
   // put your setup code here, to run once:
   Ethernet.begin(mac, ip);
   server.begin();
-
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   EthernetClient client = server.available(); //listen for incoming clients
-  while (client.connected())
-  {
-    if (client.available())
-    {
+  while (client.connected()){
+    if (client.available()){
       int ii = 0;
-      while ((c = client.read()) != "\n") //read from client
-      {
+      while ((c = client.read()) != "\n"){ //read from client
         incString[ii++] = c;
-
       }
-      
+
       //incString now has querry string inside it.
-      //do client.println(""); if you want to display html page 
+      //do client.println(""); if you want to display html page
       //write to client
       delay(1);
       //stopping client
       client.stop();
       //implement functions here that control outputs
       //define query strings at the top and then reference them in the if statements down here
-      if (strcmp_PF(incString, PSTR(query1))==0)
-      {
+      if (strcmp_PF(incString, PSTR(query1))==0){
       //do what ever, like set output high or low to trigger a relay or whatever.
       }//repeat if statements for other triggers
-      
-      incString=""; //clear string for next useage
-      
-      
 
+      incString=""; //clear string for next useage
 
     }
-
   }
-
-}
 }
