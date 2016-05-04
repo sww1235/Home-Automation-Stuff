@@ -68,8 +68,8 @@ external buttons.
 const int resetEthernetPin = 4;
 const int rxSense = 3;
 //Function Prototypes
-void connectToServer(IPAddress address, const char request[]);
-void connectToServerAndRetrieveData(IPAddress address, const char request[]);
+int connectToServer(IPAddress address, const char request[]);
+int connectToServerAndRetrieveData(IPAddress address, const char request[]);
 void ethernetReset();
 //Definitions for LED control
 unsigned char maxBrightness = 255;
@@ -116,7 +116,7 @@ const IPAddress server0( , , , );
 //static ip address of command and control server
 const IPAddress ccServer( , , , );
 //Will always have 10 queries, even if they are duplicates.
-//(example string = "GET /?message HTTP/1.0")
+//message string format: tbd //TODO figure out a good message string format
 const PROGMEM char query1[] = "";
 const PROGMEM char query2[] = "";
 const PROGMEM char query3[] = "";
@@ -128,7 +128,7 @@ const PROGMEM char query8[] = "";
 const PROGMEM char query9[] = "";
 const PROGMEM char query0[] = "";
 const PROGMEM char ccQuery[] = ""; //querry to get data back from command and control server
-EthernetClient client; //main web client
+EthernetClient client; //main ethernet client
 
 //EthernetServer server(port); //if we want a server
 
@@ -138,38 +138,32 @@ char incString[100]; // length of response from server (only requesting data fro
 void(* resetFunc) (void) = 0; //declare reset function @ address 0
 
 //need const for the char array because it is a pass by reference so it could be potentially modified by the function if const is not specififed.
-void connectToServer(IPAddress address, const char request[]) {
+int connectToServer(IPAddress address, const char request[]) {
   if (client.connect(address, port))
   {
     client.println(PSTR(request)); //the client does not actually need to get anything back from the server.
     delay(500);
     client.flush();
     client.stop();
+    return 0;
   }
+  else return -1;
 
 
 }
-void connectToServerAndRetrieveData(IPAddress address, const char request[]) {
+int connectToServerAndRetrieveData(IPAddress address, const char request[]) {
   //clear incString
-  for (int i = 0; x < 100; x++)
-  {
-    incString[i] = "";
-
-  }
-  if (client.connect(address, port))
-  {
-    client.println(PSTR(request));
-    client.println(PSTR("Connection: close"));
-    client.println();
+    incString = "";
+  if (client.connect(address, port)) {
+    client.println(PSTR(request)); //send request for data
     delay(500);
-    if (client.available() > 0)
-    {
+    if (client.available() > 0) {
       int ii = client.available(); //returns number of bytes available for reading
       char c;
       for (int i = ii; i > 0; i-- )
       {
         c = client.read();
-        if (c == '\n')
+        if (c == '\n') //server data returned terminated with newline
         {
           break;
         }
@@ -182,8 +176,11 @@ void connectToServerAndRetrieveData(IPAddress address, const char request[]) {
 
     client.flush();
     client.stop();
+    return 0;
   }
-
+  else{
+    return -1;
+  }
 
 }
 
@@ -242,7 +239,7 @@ void setup() {
 void loop()
 {
   // put your main code here, to run repeatedly:
-  connectToServerAndRetrieveData(ccServer, PSTR(ccQuery)); //this sets incString[] to a string value recieved from the command and control server that encodes the status of the leds
+  int RDsucess = connectToServerAndRetrieveData(ccServer, PSTR(ccQuery)); //this sets incString[] to a string value recieved from the command and control server that encodes the status of the leds
   //implement stuff to look at value of incString and change led values based on it.
   Wire.beginTransmission(0x20); //begin transmission on wire bus to address of mux, which is 0x20
   Wire.write(0x12); //set MCP23017 memory pointer to GPIOA address
