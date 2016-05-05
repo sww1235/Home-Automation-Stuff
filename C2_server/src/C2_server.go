@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+	"os"
+)
 
 var serverList = make(map[IP]string)
 
@@ -40,14 +44,30 @@ func networkQuery(s string, ip [4]int) string {
 
 }
 
-//provides some basic error handling for file io
-func check(e error) {
-	if e != nil {
-		panic(e)
+// //provides some basic error handling for file io
+// //TODO make sure this actually fits within go's language ideals
+// func check(e error) {
+// 	if e != nil {
+//     //log.Panicln("")
+// 		log.Panicln(e)
+// 	}
+// }
+
+func createFileHandle(path string) *os.File {
+	f, err := os.Open("")
+	if err != nil {
+		log.Panicf("Failed opening file %s", path)
+		log.Panicln(e)
 	}
+	return f
 }
+
+func closeFileHandle(f *os.File) {
+	log.Printf("Closing file %s", f.Name())
+	f.Close()
+}
+
 func configGen(address IP) {
-	//f, err := os.Open("")
-	check(err)
+	//rootPath := ""
 
 }
