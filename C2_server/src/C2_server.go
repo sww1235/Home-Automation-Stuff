@@ -39,3 +39,15 @@ func getNetworkStatus() string {
 func networkQuery(s string, ip [4]int) string {
 
 }
+
+//provides some basic error handling for file io
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+func configGen(address IP) {
+	//f, err := os.Open("")
+	check(err)
+
+}
