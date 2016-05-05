@@ -7,31 +7,6 @@
 #include <EthernetUdp.h>
 #include <avr/pgmspace.h>
 
-//need to modify client.cpp and client.h with below code to allow for getting client ip address. may not be needed.
-
-/*
-//for client.cpp
-Client::Client(uint8_t *ip, uint16_t port) {
- _ip = ip;
- _port = port;
- _sock = 255;
-}
-
-//what you need to add starts here
-void Client::IP_address(uint8_t * addr)
-{
-	getSn_DIPR(_sock, addr);
-
-}
-
-//for client.h
-
-
-void stop();
-void IP_address(uint8_t * addr);//Only add this line as the others already exist
-uint8_t connected();
-
-*/
 
 //code based on arduino web server tutorial
 //using static ip address
@@ -39,37 +14,62 @@ uint8_t connected();
 //Designed for use with Arduino Nano
 
 
-/*
-Basically the idea is to have devices that control things (the servers that are connected to
-the physical devices) and clients which are the push button panels and other human interfaces
+// Basically the idea is to have devices that control things
+// (the ardunios (servers) that are connected to the physical devices) and
+// clients (ardunios) which are the push button panels and other human interfaces.
+//
+//
+// Each arduino (either client or server) is running a tftp bootloader(freetronics).
+// See references.txt for linky. This allows for the storage of IP and MAC in
+// EEPROM. This needs static IPs.
+//
+// ALternatively, can use arduino-netboot bootloader which allows for DHCP config
+// but requires DNS and DHCP setup.
+//
+// since KISS should always be in effect, probably use static IPs and freetronics
+// bootloader. Since on own subnet anyways, static addressing is not an issue.
+//
+// MAC addresses are generated randomly using locally administered addressing,
+// and compared to previously assigned addresses in database before being burned
+// into the EEPROM of the device.
+//
+// Locally administered addresses are unicast and of the form:
+// x2-xx-xx-xx-xx-xx
+// x6-xx-xx-xx-xx-xx
+// xA-xx-xx-xx-xx-xx
+// xE-xx-xx-xx-xx-xx
+//
+// Where x is any hex value.
+//
+// Each server has an IP address and can have multiple controlled devices. Query
+// strings will be customized for specific controlled devices.
+//
+// This code is a template that will be automagically filled in for a
+// specific device by the command and control server.
+//
+//
+// this is code for an arduino board that controls something when it receives an
+// Http get request with a query string in the URL. the specific action to be taken
+// depends on the query string. It is running a local web server
+//
+// it also reports its status to the command and control server
 
-Each server has an IP address and can have multiple controlled devices. Query strings will be customized
-for specific controlled devices.
-
-This code is a template that will be automagically filled in for a specific device by the
-command and control server.
-
-
-this is code for an arduino board that controls something when it receives an
-Http get request with a query string in the URL. the specific action to be taken
-depends on the query string. It is running a local web server
-
-it also reports its status to the command and control server
-
-*/
 //Definitions
 int port = 80; //change to custom port //TODO: change to custom port
 byte mac[] = { , , , , , }; //need to fill in with generated mac address (6 byte array)
 IPAddress ip( , , , ); //static ip address of local device (server)
+IPAddress dns( , , , ); //IP address of DNS server
+IPAddress gateway( , , , ); //Router's gateway address
+IPAddress subnet( , , , ); //Subnet mask
 // add list of query strings to respond to here
 // will need two entries to turn something on and off.
-const PROGMEM char query1[] = ""; 
+const PROGMEM char query1[] = "";
 
 EthernetServer server(80);
 char incString[100]; //set max length of request string
 void setup() {
   // put your setup code here, to run once:
-  Ethernet.begin(mac, ip);
+  Ethernet.begin(mac, ip, dns, gateway, subnet);
   server.begin();
 }
 

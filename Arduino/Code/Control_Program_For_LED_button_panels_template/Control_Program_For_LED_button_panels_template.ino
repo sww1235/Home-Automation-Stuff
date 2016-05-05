@@ -90,6 +90,9 @@ const int port = 80;
 const byte mac[] = { , , , , , };
 //static ip address of local device (client)
 const IPAddress ip( , , , );
+IPAddress dns( , , , ); //IP address of DNS server
+IPAddress gateway( , , , ); //Router's gateway address
+IPAddress subnet( , , , ); //Subnet mask
 
 //Duplicate Server IP address if it is accessed by more than one button.
 
@@ -220,7 +223,7 @@ void ethernetReset() {
 
 void setup() {
   ethernetReset();
-  Ethernet.begin(mac, ip); //initilize ethernet shield
+  Ethernet.begin(mac, ip, dns, gateway, subnet); //initilize ethernet connection
   delay(1000);
   Wire.begin(); //wake up I2C bus
     // Sets the number of 8-bit registers that are used.
@@ -242,7 +245,7 @@ void loop(){
   int RDsucess = connectToServerAndRetrieveData(ccServer, PSTR(ccQuery));
   //implement stuff to look at value of incString and change led values based on it.
   if (RDsucess){
-    
+
   }
   //begin transmission on wire bus to address of mux, which is 0x20
   Wire.beginTransmission(0x20);
