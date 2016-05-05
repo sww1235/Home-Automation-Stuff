@@ -3,6 +3,7 @@
 //#include <Dns.h>
 #include <Ethernet.h>
 #include <EthernetServer.h>
+#include <EthernetClient.h>
 #include <EthernetUdp.h>
 #include <avr/pgmspace.h>
 
@@ -47,9 +48,8 @@
 // specific device by the command and control server.
 //
 //
-// this is code for an arduino board that controls something when it receives an
-// Http get request with a query string in the URL. the specific action to be taken
-// depends on the query string. It is running a local web server
+// this is code for an arduino board that controls something when it receives
+// a query string from an EthernetClient
 //
 // it also reports its status to the command and control server
 
@@ -60,6 +60,7 @@ IPAddress ip( , , , ); //static ip address of local device (server)
 IPAddress dns( , , , ); //IP address of DNS server
 IPAddress gateway( , , , ); //Router's gateway address
 IPAddress subnet( , , , ); //Subnet mask
+IPAddress ccServer( , , , ); //C2 server IP
 // add list of query strings to respond to here
 // will need two entries to turn something on and off.
 const PROGMEM char query1[] = "";
@@ -74,28 +75,32 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  EthernetClient client = server.available(); //listen for incoming clients
-  while (client.connected()){
-    if (client.available()){
-      int ii = 0;
-      while ((c = client.read()) != "\n"){ //read from client
-        incString[ii++] = c;
+  EthernetClient client = server.available();
+  if (client){ //listen for incoming clients
+    while (client.connected()){
+      if (client.available()){
+        int ii = 0;
+        while ((c = client.read()) != "\n"){ //read from client
+          incString[ii++] = c;
+        }
+
+        //incString now has querry string inside it.
+        //do client.println(""); if you want to display html page
+        //write to client
+        //one query string will be a status request from the C2 server. something along the lines of Status?
+        //use client.write or println to respond. probably .println w/json encoded data.
+        delay(1);
+        //stopping client
+        client.stop();
+        //implement functions here that control outputs
+        //define query strings at the top and then reference them in the if statements down here
+        if (strcmp_PF(incString, PSTR(query1))==0){
+          //do what ever, like set output high or low to trigger a relay or whatever.
+        }//repeat if statements for other triggers
+
+        incString=""; //clear string for next useage
+
       }
-
-      //incString now has querry string inside it.
-      //do client.println(""); if you want to display html page
-      //write to client
-      delay(1);
-      //stopping client
-      client.stop();
-      //implement functions here that control outputs
-      //define query strings at the top and then reference them in the if statements down here
-      if (strcmp_PF(incString, PSTR(query1))==0){
-      //do what ever, like set output high or low to trigger a relay or whatever.
-      }//repeat if statements for other triggers
-
-      incString=""; //clear string for next useage
-
     }
   }
 }
