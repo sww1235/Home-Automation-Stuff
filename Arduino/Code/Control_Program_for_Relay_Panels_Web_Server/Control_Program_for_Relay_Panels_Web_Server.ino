@@ -2,7 +2,6 @@
 //#include <Dhcp.h>
 //#include <Dns.h>
 #include <Ethernet.h>
-#include <EthernetClient.h>
 #include <EthernetServer.h>
 #include <EthernetUdp.h>
 #include <avr/pgmspace.h>
