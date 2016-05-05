@@ -3,12 +3,21 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"os"
+	"strconv"
+	"time"
+	"path"
 )
 
-var serverList = make(map[IP]string)
+// func temp(){
+// test := net.IPv4(3,5,7,8)
+// }
+//[key is string representation of ip address x.x.x.x]
+//value is string representing name/location of device
+var serverList = make(map[string]string)
 
-var clientList = make(map[IP]string)
+var clientList = make(map[string]string)
 
 const port int = 80 //TODO decide on custom port or make part of config
 func main() {
@@ -32,7 +41,7 @@ func main() {
 func getNetworkStatus() string {
 	var s string = "" //TODO determine status query string
 	for IP, _ := range serverList {
-		s += networkQuery(s, IP)
+		s += networkQuery(s, net.ParseIP(IP))
 	}
 	return s
 }
@@ -40,8 +49,25 @@ func getNetworkStatus() string {
 //This encapsulates s into tcp packets, establishes a tcp session w/ ip,
 //transmits the packets and recieves and returns the response as a string
 //TODO decide on exact return value
-func networkQuery(s string, ip [4]int) string {
+func networkQuery(s string, ip net.IP) string {
+	var response string = ""
 
+	return response
+}
+
+func receiveFromClient(port int) {
+	incoming, err := net.Listen("tcp", ":"+strconv.Itoa(port))
+	if err != nil {
+		// handle error
+		log.Println(err)
+	}
+	for {
+		conn, err := incoming.Accept()
+		if err != nil {
+			// handle error
+		}
+		//go handleConnection(conn)
+	}
 }
 
 // //provides some basic error handling for file io
@@ -57,7 +83,7 @@ func createFileHandle(path string) *os.File {
 	f, err := os.Open("")
 	if err != nil {
 		log.Panicf("Failed opening file %s", path)
-		log.Panicln(e)
+		log.Panicln(err)
 	}
 	return f
 }
@@ -67,7 +93,11 @@ func closeFileHandle(f *os.File) {
 	f.Close()
 }
 
-func configGen(address IP) {
-	//rootPath := ""
-
+func configGen(address string) {
+	rootPath := ""
+	fullPath := path.Join(rootPath, serverList[address], time.Now().Format(time.RFC822))
+	inFile := createFileHandle(fullPath)
+	defer closeFileHandle(inFile)
+	outFile := createFileHandle(fullPath)
+	defer closeFileHandle(outFile)
 }
