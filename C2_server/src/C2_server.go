@@ -1,12 +1,12 @@
 package main
 
-import (
-	"fmt"
-	"net"
-)
+import "fmt"
 
 var serverList = make(map[IP]string)
 
+var clientList = make(map[IP]string)
+
+const port int = 80 //TODO decide on custom port or make part of config
 func main() {
 	fmt.Printf("hello, world\n")
 }
@@ -22,13 +22,15 @@ func main() {
 //manage database connection
 //Simulate arduino button presses
 //send query string on network
+//getters and setters for serverList and clientList from database
 
-//
-func getNetworkStatus() {
-	var s string = ""
+// returns a string? with all status info for servers.
+func getNetworkStatus() string {
+	var s string = "" //TODO determine status query string
 	for IP, _ := range serverList {
 		s += networkQuery(s, IP)
 	}
+	return s
 }
 
 //This encapsulates s into tcp packets, establishes a tcp session w/ ip,
