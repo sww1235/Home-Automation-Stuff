@@ -1,2 +1,2 @@
-# Home-Automation-Stuff
+# Home_Automation
 Home automation related code and documents
