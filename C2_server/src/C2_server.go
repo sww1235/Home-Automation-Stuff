@@ -22,6 +22,10 @@ var clientList = make(map[string]string)
 const port int = 80 //TODO decide on custom port or make part of config
 func main() {
 	fmt.Printf("hello, world\n")
+
+	//On load:
+	//need to query database to update serverList and clientList
+	//Send status command to all clients and servers and display them
 }
 
 //What exactly does this need to do
@@ -96,8 +100,9 @@ func closeFileHandle(f *os.File) {
 }
 
 //have meta list of all query strings
-
-func configGen(address string, rootPath string, deviceType string) {
+//take config options passed in and generate source file
+//return fullPath which is the path to the generated source file
+func clientSourceGen(address string, rootPath string, deviceType string) string{
 	fullPath := path.Join(rootPath, serverList[address], time.Now().Format(time.RFC822))
 	inFile := createFileHandle(fullPath)
 	defer closeFileHandle(inFile)
@@ -109,6 +114,30 @@ func configGen(address string, rootPath string, deviceType string) {
 		//C2 server ip, C2 server query, MAC, self IP,
 		//port, dns, gateway, subnet,
 
+	case "Other client":
+
+	//needs array of n server ip addresses, array of n query strings,
+	//C2 server ip, C2 server query, MAC, self IP,
+	//port, dns, gateway, subnet,
+	}
+	return fullPath
+}
+
+//serverSourceGen takes config options passed in and generate source file.
+//It returns fullPath which is the path to the generated source file
+func serverSourceGen(address string, rootPath string, deviceType string) string{
+	fullPath := path.Join(rootPath, serverList[address], time.Now().Format(time.RFC822))
+	inFile := createFileHandle(fullPath)
+	defer closeFileHandle(inFile)
+	outFile := createFileHandle(fullPath)
+	defer closeFileHandle(outFile)
+	switch deviceType {
+	case "Dimmer server":
+		//needs array of query strings to respond to,
+		//For relay server, query string will be of aproximate form "'Port'-{ON:OFF}"
+		//C2 server ip, C2 server query, MAC, self IP,
+		//port, dns, gateway, subnet,
+
 	case "Relay server":
 
 		//needs array of query strings to respond to,
@@ -116,4 +145,5 @@ func configGen(address string, rootPath string, deviceType string) {
 		//C2 server ip, C2 server query, MAC, self IP,
 		//port, dns, gateway, subnet,
 	}
+	return fullPath
 }
