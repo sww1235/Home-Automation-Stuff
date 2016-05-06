@@ -1,10 +1,7 @@
 #include <SPI.h>
-//#include <Dhcp.h>
-//#include <Dns.h>
 #include <Ethernet.h>
 #include <EthernetServer.h>
 #include <EthernetClient.h>
-#include <EthernetUdp.h>
 #include <avr/pgmspace.h>
 
 

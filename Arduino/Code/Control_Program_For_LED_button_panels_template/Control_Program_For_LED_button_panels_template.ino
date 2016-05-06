@@ -1,9 +1,5 @@
-//#include <Dhcp.h>
-//#include <Dns.h>
 #include <Ethernet.h>
 #include <EthernetClient.h>
-//#include <EthernetServer.h>
-//#include <EthernetUdp.h>
 #include <Wire.h>
 const int ShiftPWM_latchPin = 8;
 const bool ShiftPWM_invertOutputs = false;
