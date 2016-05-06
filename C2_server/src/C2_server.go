@@ -26,6 +26,7 @@ func main() {
 	//On load:
 	//need to query database to update serverList and clientList
 	//Send status command to all clients and servers and display them
+	//wait for command
 }
 
 //What exactly does this need to do
@@ -82,6 +83,12 @@ func receiveFromClient(port int) {
 // 		log.Panicln(e)
 // 	}
 // }
+
+func addDevice(){
+	//generate mac address and IP address
+	//check if they are already in database
+	//prompt to connect 
+}
 
 func createFileHandle(path string) *os.File {
 	f, err := os.Open("")
