@@ -85,8 +85,8 @@ void loop() {
         }
 
         //incString now has querry string inside it.
-        //do client.println(""); if you want to display html page
-        //write to client
+
+        //only one client will ever be connected at once
         //one query string will be a status request from the C2 server. something along the lines of Status?
         //use client.write or println to respond. probably .println w/json encoded data.
         delay(1);

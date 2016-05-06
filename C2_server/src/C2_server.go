@@ -37,6 +37,8 @@ func main() {
 //send query string on network
 //getters and setters for serverList and clientList from database
 
+
+
 // returns a string? with all status info for servers.
 func getNetworkStatus() string {
 	var s string = "" //TODO determine status query string
@@ -93,11 +95,25 @@ func closeFileHandle(f *os.File) {
 	f.Close()
 }
 
-func configGen(address string) {
-	rootPath := ""
+//have meta list of all query strings
+
+func configGen(address string, rootPath string, deviceType string) {
 	fullPath := path.Join(rootPath, serverList[address], time.Now().Format(time.RFC822))
 	inFile := createFileHandle(fullPath)
 	defer closeFileHandle(inFile)
 	outFile := createFileHandle(fullPath)
 	defer closeFileHandle(outFile)
+	switch deviceType {
+	case "LED client":
+		//needs array of 10 server ip addresses, array of 10 query strings,
+		//C2 server ip, C2 server query, MAC, self IP,
+		//port, dns, gateway, subnet,
+
+	case "Relay server":
+
+		//needs array of query strings to respond to,
+		//For relay server, query string will be of aproximate form "'Port'-{ON:OFF}"
+		//C2 server ip, C2 server query, MAC, self IP,
+		//port, dns, gateway, subnet,
+	}
 }
