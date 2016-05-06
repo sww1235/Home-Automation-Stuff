@@ -5,9 +5,9 @@ import (
 	"log"
 	"net"
 	"os"
+	"path"
 	"strconv"
 	"time"
-	"path"
 )
 
 // func temp(){
@@ -40,8 +40,6 @@ func main() {
 //Simulate arduino button presses
 //send query string on network
 //getters and setters for serverList and clientList from database
-
-
 
 // returns a string? with all status info for servers.
 func getNetworkStatus() string {
@@ -102,8 +100,8 @@ func closeFileHandle(f *os.File) {
 //have meta list of all query strings
 //take config options passed in and generate source file
 //return fullPath which is the path to the generated source file
-func clientSourceGen(address string, rootPath string, deviceType string) string{
-	fullPath := path.Join(rootPath, serverList[address], time.Now().Format(time.RFC822))
+func clientSourceGen(selfIP net.IP, rootPath string, deviceType string, queryStrings []string, IPAddresses []net.IP, C2_IP net.IP, C2_query net.IP, MAC net.HardwareAddr, port int, DNS net.IP, gateway net.IP, subnet net.IP) string {
+	fullPath := path.Join(rootPath, serverList[net.IP.String(selfIP)], time.Now().Format(time.RFC822))
 	inFile := createFileHandle(fullPath)
 	defer closeFileHandle(inFile)
 	outFile := createFileHandle(fullPath)
@@ -116,27 +114,27 @@ func clientSourceGen(address string, rootPath string, deviceType string) string{
 
 	case "Other client":
 
-	//needs array of n server ip addresses, array of n query strings,
-	//C2 server ip, C2 server query, MAC, self IP,
-	//port, dns, gateway, subnet,
+		//needs array of n server ip addresses, array of n query strings,
+		//C2 server ip, C2 server query, MAC, self IP,
+		//port, dns, gateway, subnet,
 	}
 	return fullPath
 }
 
 //serverSourceGen takes config options passed in and generate source file.
 //It returns fullPath which is the path to the generated source file
-func serverSourceGen(address string, rootPath string, deviceType string) string{
-	fullPath := path.Join(rootPath, serverList[address], time.Now().Format(time.RFC822))
+func serverSourceGen(selfIP net.IP, rootPath string, deviceType string, queryStrings []string, C2_IP net.IP, C2_query net.IP, MAC net.HardwareAddr, port int, DNS net.IP, gateway net.IP, subnet net.IP) string {
+	fullPath := path.Join(rootPath, serverList[net.IP.String(selfIP)], time.Now().Format(time.RFC822))
 	inFile := createFileHandle(fullPath)
 	defer closeFileHandle(inFile)
 	outFile := createFileHandle(fullPath)
 	defer closeFileHandle(outFile)
 	switch deviceType {
-	case "Dimmer server":
-		//needs array of query strings to respond to,
-		//For relay server, query string will be of aproximate form "'Port'-{ON:OFF}"
-		//C2 server ip, C2 server query, MAC, self IP,
-		//port, dns, gateway, subnet,
+	//case "Other server":
+	//needs array of query strings to respond to,
+	//For other server, query string will be of aproximate form "'Port'-{ON:OFF}"
+	//C2 server ip, C2 server query, MAC, self IP,
+	//port, dns, gateway, subnet,
 
 	case "Relay server":
 
@@ -144,6 +142,9 @@ func serverSourceGen(address string, rootPath string, deviceType string) string{
 		//For relay server, query string will be of aproximate form "'Port'-{ON:OFF}"
 		//C2 server ip, C2 server query, MAC, self IP,
 		//port, dns, gateway, subnet,
+
+	default:
+
 	}
 	return fullPath
 }
