@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"net"
 	"os"
 	"path"
@@ -10,21 +11,21 @@ import (
 	"time"
 )
 
-// func temp(){
-// test := net.IPv4(3,5,7,8)
-// }
 //[key is string representation of ip address x.x.x.x]
 //value is string representing name/location of device
 var serverList = make(map[string]string)
 
 var clientList = make(map[string]string)
 
+//contents is string representation of MAC addresses
+var macList []string
+
 const port int = 80 //TODO decide on custom port or make part of config
 func main() {
 	fmt.Printf("hello, world\n")
 
 	//On load:
-	//need to query database to update serverList and clientList
+	//need to query database to update serverList, clientList and macList
 	//Send status command to all clients and servers and display them
 	//wait for command
 }
@@ -42,13 +43,13 @@ func main() {
 //send query string on network
 //getters and setters for serverList and clientList from database
 
-// returns a string? with all status info for servers.
-func getNetworkStatus() string {
-	var s string = "" //TODO determine status query string
+// returns a string slice with all status info for servers.
+func getNetworkStatus(queryString string) []string {
+	statusReports := make([]string, len(serverList)) //TODO determine status query string
 	for IP, _ := range serverList {
-		s += networkQuery(s, net.ParseIP(IP))
+		statusReports = append(statusReports, networkQuery(queryString, net.ParseIP(IP)))
 	}
-	return s
+	return statusReports
 }
 
 //This encapsulates s into tcp packets, establishes a tcp session w/ ip,
@@ -75,19 +76,30 @@ func receiveFromClient(port int) {
 	}
 }
 
-// //provides some basic error handling for file io
-// //TODO make sure this actually fits within go's language ideals
-// func check(e error) {
-// 	if e != nil {
-//     //log.Panicln("")
-// 		log.Panicln(e)
-// 	}
-// }
+//macType defines the second digit of the mac address as one of the 4
+//possible values for internally managed mac addresses, 2, 6, A, E, where the
+//value is directly passed in and checked in the function.
+func addDevice(macType rune, ip1Digit int, ip2Digit int) {
+	macAddr := createMacAddress(macType)
 
-func addDevice(){
 	//generate mac address and IP address
 	//check if they are already in database
-	//prompt to connect 
+	//prompt to connect
+}
+
+func createMacAddress(macType rune) net.HardwareAddr {
+	//testMAC, _ := net.ParseMAC(02:00:00:00:00)
+	rand.Seed(time.Now().Unix())
+	macDigits := make([]rune, 12)
+	for i := 0; i < 11; i++ { //generate 11 random integer digits
+		if i == 1 { //this means that index 1 does not get set
+			continue
+		}
+		//returns a psuedo random integer in the range [0.n) where n = 10 in this case
+		macDigits[i] = rune(rand.Intn(10))
+	}
+
+
 }
 
 func createFileHandle(path string) *os.File {
