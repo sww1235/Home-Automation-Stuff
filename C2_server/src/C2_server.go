@@ -90,15 +90,43 @@ func addDevice(macType rune, ip1Digit int, ip2Digit int) {
 func createMacAddress(macType rune) net.HardwareAddr {
 	//testMAC, _ := net.ParseMAC(02:00:00:00:00)
 	rand.Seed(time.Now().Unix())
-	macDigits := make([]rune, 12)
-	for i := 0; i < 11; i++ { //generate 11 random integer digits
+	macDigits := make([]int, 10)
+	macChars := make([]string, 10)
+
+	for i := 0; i < 10; i++ { //generate 11 random integer digits
 		if i == 1 { //this means that index 1 does not get set
 			continue
 		}
-		//returns a psuedo random integer in the range [0.n) where n = 10 in this case
-		macDigits[i] = rune(rand.Intn(10))
+		//returns a psuedo random integer in the range [0.n) where n = 16 in this case
+		macDigits[i] = rand.Intn(16)
 	}
 
+	switch macType {
+
+	case '2':
+		macDigits[1] = 2
+	case '6':
+		macDigits[1] = 6
+	case 'A':
+		macDigits[1] = 10
+	case 'E':
+		macDigits[1] = 15
+	default:
+		macDigits[1] = 2
+	}
+
+	//macDigits[1] = int(macType - '0')
+
+	fmt.Println(macDigits)
+
+	for i, digit := range macDigits {
+		macChars[i] = fmt.Sprintf("%X", strconv.FormatInt(digit, 16))
+	}
+	fmt.Println(macChars)
+	tempString := macChars[0] + macChars[1] + ":" + macChars[2] + macChars[3] + ":" + macChars[4] + macChars[5] + ":" + macChars[6] + macChars[7] + ":" + macChars[8] + macChars[9]
+	fmt.Println(tempString)
+	temp, _ := net.ParseMAC(tempString)
+	return temp
 
 }
 
