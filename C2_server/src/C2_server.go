@@ -18,6 +18,7 @@ var serverList = make(map[string]string)
 var clientList = make(map[string]string)
 
 //contents is string representation of MAC addresses
+//load from database
 var macList []string
 
 const port int = 80 //TODO decide on custom port or make part of config
@@ -115,19 +116,22 @@ func createMacAddress(macType rune) net.HardwareAddr {
 		macDigits[1] = 2
 	}
 
-	//macDigits[1] = int(macType - '0')
-
-	fmt.Println(macDigits)
+	//fmt.Println(macDigits)
 
 	for i, digit := range macDigits {
-		macChars[i] = fmt.Sprintf("%X", strconv.FormatInt(digit, 16))
+		macChars[i] = fmt.Sprintf("%v", strconv.FormatInt(int64(digit), 16))
 	}
-	fmt.Println(macChars)
+	//fmt.Println(macChars)
 	tempString := macChars[0] + macChars[1] + ":" + macChars[2] + macChars[3] + ":" + macChars[4] + macChars[5] + ":" + macChars[6] + macChars[7] + ":" + macChars[8] + macChars[9]
-	fmt.Println(tempString)
-	temp, _ := net.ParseMAC(tempString)
-	return temp
+	//fmt.Println(tempString)
+	macAddress, _ := net.ParseMAC(tempString)
+	return macAddress
 
+}
+
+func pullFromDatabase() int{
+	//implement database functions here
+	return 0
 }
 
 func createFileHandle(path string) *os.File {
