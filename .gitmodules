@@ -1,0 +1,3 @@
+[submodule "Home_Automation_C2-Server"]
+	path = Home_Automation_C2-Server
+	url = git@github.com:sww1235/Home_Automation_C2-Server.git
