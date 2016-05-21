@@ -1,15 +1,8 @@
 # Home_Automation
 Home automation related code and documents
 
+## Related Code listed below
 
-## Managing Submodules
-
-cd Home_Automation/[submodule]
-
-git pull
-
-cd ..
-
-git add [submodule]
-
-git commit -m "Upgraded [submodule] to version XYZ"
+- Command and Control server code [here](https://github.com/sww1235/Home_Automation_C2-Server)
+- Arduino code [here](https://github.com/sww1235/Home_Automation_Arduino-Code)
+- Custom Circuit boards [here](https://github.com/sww1235/Home_Automation-eCAD-work)
