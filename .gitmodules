@@ -1,9 +1,0 @@
-[submodule "Home_Automation_C2-Server"]
-	path = Home_Automation_C2-Server
-	url = git@github.com:sww1235/Home_Automation_C2-Server.git
-[submodule "Home_Automation_Arduino-Code"]
-	path = Home_Automation_Arduino-Code
-	url = git@github.com:sww1235/Home_Automation_Arduino-Code.git
-[submodule "Home_Automation-eCAD-work"]
-	path = Home_Automation-eCAD-work
-	url = git@github.com:sww1235/Home_Automation-eCAD-work.git
